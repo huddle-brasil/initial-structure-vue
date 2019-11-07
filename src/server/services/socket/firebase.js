@@ -1,12 +1,55 @@
 import db from '../../config/firebase'
 import firebase from 'firebase'
+import { fieldValueCreator } from '../../../helpers/services'
 
 export const createdAt = firebase.firestore.FieldValue.serverTimestamp()
 
-export const simpleDocumentCreation = async (collection, data) => {
-    const request = await db.collection(collection).add(data)
-    return request
+export const referenceCreator = async (collection) => {
+    return db.collection(collection)
 }
+
+export const createDocument = async (collection, mode, data) => {
+    const createdAt = firebase.firestore.FieldValue.serverTimestamp()
+    const collectionRef = await referenceCreator(collection)
+    let response
+    if(mode == 'automaticId') response = await collectionRef.add({...data, createdAt})
+    if(mode == 'createReplace') response = await collectionRef.set({...data, createdAt})
+    return response
+}
+
+export const getDocument = async (collection, mode, data, condition = null) => {
+    const collectionRef = await referenceCreator(collection)
+    let response
+    if(mode == 'specificDocument') response = await collectionRef.doc(data).get()
+    if(mode == 'allDocuments') response = await collectionRef.get()
+    if(mode == 'getCondition'){
+        let getData = Object.entries(data)
+        response = await collectionRef.where(getData[0], condition, getData[1]).get()
+    } 
+    return response
+}
+
+export const updateDocument = async (collection, mode, data) => {
+    const updatedAt = { "updatedAt" : firebase.firestore.FieldValue.serverTimestamp() }
+    let response
+    const collectionRef = referenceCreator(collection)
+    if(mode == 'merge') response = await collectionRef.set({...data, updatedAt}, {merge: true})
+    if(mode == 'someFields' || mode == 'nestedFields') response = await collectionRef.update({...data, updatedAt})
+    if(mode == 'arrayUnion' || mode == 'arrayRemove' || mode == 'increment' || mode == 'deleteFields'){
+        let updateData = fieldValueCreator(data, mode)
+        response = await collectionRef.update({...updateData, updatedAt})
+    } 
+    return response
+}
+
+export const deleteDocument = async (collection, mode, documentId) => {
+    const collectionRef = await referenceCreator(collection)
+    let response 
+    if(mode == 'specificDocument') response = await collectionRef.doc(documentId).delete()
+    return response
+}
+
+
 
 /* 
     
@@ -56,7 +99,7 @@ export const simpleDocumentCreation = async (collection, data) => {
     * Fazer uma busca por condicoes
     db.collection("cities").where("capital", "==", true)
 
-    * Buscar todos documentos deu ma colecao
+    * Buscar todos documentos de uma colecao
     db.collection("cities").get()
 
 
