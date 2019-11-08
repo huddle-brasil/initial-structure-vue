@@ -4,9 +4,7 @@ import { fieldValueCreator } from '../../../helpers/services'
 
 export const createdAt = firebase.firestore.FieldValue.serverTimestamp()
 
-export const referenceCreator = async (collection) => {
-    return db.collection(collection)
-}
+export const referenceCreator = async (collection) => db.collection(collection)
 
 export const createDocument = async (collection, mode, data) => {
     const createdAt = firebase.firestore.FieldValue.serverTimestamp()
@@ -30,7 +28,7 @@ export const getDocument = async (collection, mode, data, condition = null) => {
 }
 
 export const updateDocument = async (collection, mode, data) => {
-    const updatedAt = { "updatedAt" : firebase.firestore.FieldValue.serverTimestamp() }
+    const updatedAt = firebase.firestore.FieldValue.serverTimestamp() 
     let response
     const collectionRef = referenceCreator(collection)
     if(mode == 'merge') response = await collectionRef.set({...data, updatedAt}, {merge: true})
