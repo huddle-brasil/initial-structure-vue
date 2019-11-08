@@ -11,11 +11,11 @@
 ## Instalação
 
 ```bash
-# 🎉 clone the project
+# 🎉 Clonar o projeto
 git clone https://github.com/huddle-brasil/initial-structure-vue.git your-project-name
 cd your-project-name
 
-# ➕ install dependencies & start dev
+# ➕ Instalar dependências e iniciar o projeto
 npm i && npm run serve
 ```
 
